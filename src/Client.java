@@ -1,20 +1,30 @@
 import com.jme3.app.Application;
+import com.jme3.system.AppSettings;
 
 public class Client extends Application
 {
+    private AppSettings settings = new AppSettings(true);
+    
+    
     public enum clientState
     {
         MAIN_MENU, IN_GAME, SCORE_SCREEN;
     }
     
-    public static void main(String[] args) 
+    public Client()
     {
-        Client app = new Client();
-        app.start();
+        settings.setTitle("Elements");
+        this.setSettings(settings);
+        this.start();
     }
     
-    public void simpleInitApp()
+    public void changeTitle()
     {
         
+    }
+    
+    public static void main(String[] args) 
+    {
+        Client mainClient = new Client();
     }
 }
