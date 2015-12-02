@@ -7,6 +7,7 @@ public class Client extends Application
 {
     private AppSettings settings = new AppSettings(true);
     protected Node rootNode = new Node("Root Node");
+    protected Node guiNode = new Node("Gui Node");  
     state clientState;
     
     public enum state
@@ -27,10 +28,18 @@ public class Client extends Application
     
     public Client()
     {
+        this.initClient();
+    }
+    
+    public void initClient()
+    {   
         this.clientState = state.MAIN_MENU;
         settings.setTitle("Elements");
         this.setSettings(settings);
         this.start();
+        Spatial test = assetManager.loadModel("Models/test.blend");
+        viewPort.attachScene(rootNode);
+        rootNode.attachChild(test);
     }
     
     public void changeTitle(String newTitle)
@@ -40,16 +49,15 @@ public class Client extends Application
         this.restart();
     }
     
-    public void loadModels()
+    public void update()
     {
-        Spatial test = assetManager.loadModel("Models/test.blend");
-        //viewPort.attachScene(rootNode   );
-      //  rootNode.attachChild(test);
+        if(speed == 0 || paused)
+            return;
+        super.update();
     }
     
     public static void main(String[] args) 
     {
-      /*  Client mainClient = new Client();     
-        mainClient.loadModels();*/
+        Client mainClient = new Client(); 
     }
 }
