@@ -28,7 +28,7 @@ public class Client extends Application
     public Client()
     {
         this.clientState = state.MAIN_MENU;
-       settings.setTitle("Elements");
+        settings.setTitle("Elements");
         this.setSettings(settings);
         this.start();
     }
@@ -42,14 +42,14 @@ public class Client extends Application
     
     public void loadModels()
     {
-        //Spatial test = assetManager.loadModel("Models/test.blend");
+        Spatial test = assetManager.loadModel("Models/test.blend");
         //viewPort.attachScene(rootNode   );
       //  rootNode.attachChild(test);
     }
     
     public static void main(String[] args) 
     {
-        Client mainClient = new Client();     
-        mainClient.loadModels();
+      /*  Client mainClient = new Client();     
+        mainClient.loadModels();*/
     }
 }
