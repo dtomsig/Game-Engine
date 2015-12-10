@@ -1,4 +1,6 @@
-all:
+all: jar
+
+jar:
 	javac -d build -cp "lib/jar/lwjgl.jar" src/Client.java src/Unit.java src/ClientLoader.java
 	touch manifest.txt
 	printf 'Main-Class: ClientLoader\nClass-Path: build/\n  lib/jar/lwjgl.jar\n' > manifest.txt
