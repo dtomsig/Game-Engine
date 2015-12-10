@@ -29,35 +29,63 @@ public class Client
     
     public Client()
     {
-        initClient();
+        this.run();
+    }
+    
+    public void run()
+    {
+        try 
+        {
+            initClient();
+            update();
+            glfwDestroyWindow(windowHandle);
+        }
+        finally
+        {
+            glfwTerminate();
+            errorCallback.release();
+        }
+        
     }
     
     public void initClient()
     {   
         int glfwErrorState = glfwInit();
         
-        glfwSetErrorCallback(errorCallback);
+        glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
         
         if(glfwErrorState == GL_FALSE)
             throw new IllegalStateException("Failed to initialize.");
         
         
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        
         this.windowHandle = glfwCreateWindow(640, 480, "Elements Game", NULL, NULL);
+        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwMakeContextCurrent(windowHandle);
         glfwSwapInterval(1);
         glfwShowWindow(windowHandle);
     }
     
+    public void update()
+    {    
+        GL.createCapabilities();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        
+        while(glfwWindowShouldClose(windowHandle) == GLFW_FALSE)
+        {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glfwSwapBuffers(windowHandle);
+            glfwPollEvents();
+        }
+    }
+    
+    
     public void changeTitle()
     {
         
     }
-    
-    public void update()
-    {    
-
-    }
-    
     public void render()
     {
         
