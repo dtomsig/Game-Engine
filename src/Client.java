@@ -14,7 +14,6 @@ public class Client
     private static GLFWErrorCallback errorCallback = GLFWErrorCallback.createPrint(System.err);
     private state clientState;
     
-    
     public enum state
     {   
         MAIN_MENU(0), IN_GAME(1), SCORE_SCREEN(2);
@@ -75,6 +74,7 @@ public class Client
         GLFW.glfwShowWindow(windowHandle);
         GL.setCapabilities(GL.createCapabilities());
         
+        /* Sets the initial GL context. */
         GL11.glViewport(0, 0, this.clientWidth, this.clientHeight);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
@@ -98,6 +98,7 @@ public class Client
                     this.drawSquare();
                     
                 case IN_GAME:
+                    this.drawSquare();
                     
             }
             
@@ -115,10 +116,10 @@ public class Client
     {        
         GL11.glColor3f(0.1f, 0.1f, 0.6f);
         GL11.glBegin(GL11.GL_POLYGON);
-        GL11.glVertex3f(15f, 25f, 0.0f);
-        GL11.glVertex3f(75f, 25f, 0.0f);
-        GL11.glVertex3f(75f, 75f, 0.0f);
-        GL11.glVertex3f(25f, 75f, 0.0f); 
+        GL11.glVertex3f(50f, 50f, 0.0f);
+        GL11.glVertex3f(75f, 100f, 0.0f);
+        GL11.glVertex3f(100f, 50f, 0.0f);
+        GL11.glVertex3f(75f, 0f, 0.0f); 
         GL11.glEnd();
         GL11.glFlush();
     }
