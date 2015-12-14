@@ -9,7 +9,7 @@ import org.lwjgl.system.MemoryUtil;
 
 public class Client
 {   
-    private int glfwErrorState; 
+    private int glfwErrorState, clientWidth, clientHeight; 
     private long windowHandle;
     private static GLFWErrorCallback errorCallback = GLFWErrorCallback.createPrint(System.err);
     private state clientState;
@@ -33,6 +33,8 @@ public class Client
     
     public Client()
     {
+        this.clientHeight = 640;
+        this.clientWidth = 480;
     }
     
     public void run()
@@ -40,7 +42,7 @@ public class Client
         try 
         {
             initClient();
-            update();
+            display();
             GLFW.glfwDestroyWindow(windowHandle);
         }
         finally
@@ -59,7 +61,7 @@ public class Client
         if(glfwErrorState == GL11.GL_FALSE)
             throw new IllegalStateException("Failed to initialize.");
         
-        this.windowHandle = GLFW.glfwCreateWindow(640, 480, "Elements Game", 
+        this.windowHandle = GLFW.glfwCreateWindow(this.clientHeight, this.clientWidth, "Elements Game", 
                                                   MemoryUtil.NULL, 
                                                   MemoryUtil.NULL);
         this.clientState = state.MAIN_MENU;
@@ -73,14 +75,15 @@ public class Client
         GLFW.glfwShowWindow(windowHandle);
         GL.setCapabilities(GL.createCapabilities());
         
-        GL11.glViewport(0, 0, 640, 480);
+        GL11.glViewport(0, 0, this.clientWidth, this.clientHeight);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glLoadIdentity();
+        GL11.glOrtho(0, this.clientWidth, 0, this.clientHeight, -1, 1);
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadIdentity();
-        GL11.glOrtho(0.0, 10.0, 0.0, 10.0, -1.0, 1.0);
     }
     
-    public void update()
+    public void display()
     {   
         GL11.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         
@@ -103,16 +106,21 @@ public class Client
         }
     }
     
+    public void resize(/*GL11.GLsizei w, GL11.GLsizei height*/)
+    {
+            
+    }
+    
     public void drawSquare()
     {        
-        GL11.glColor3f(0.8f, 0.3f, 0.6f);
+        GL11.glColor3f(0.1f, 0.1f, 0.6f);
         GL11.glBegin(GL11.GL_POLYGON);
-        GL11.glVertex3f(2.0f, 4.0f, 0.0f);
-        GL11.glVertex3f(8.0f, 4.0f, 0.0f);
-        GL11.glVertex3f(8.0f, 6.0f, 0.0f);
-        GL11.glVertex3f(2.0f, 6.0f, 0.0f); 
+        GL11.glVertex3f(15f, 25f, 0.0f);
+        GL11.glVertex3f(75f, 25f, 0.0f);
+        GL11.glVertex3f(75f, 75f, 0.0f);
+        GL11.glVertex3f(25f, 75f, 0.0f); 
         GL11.glEnd();
-        //GL11.glFLush();
+        GL11.glFlush();
     }
     
     public void changeTitle()
