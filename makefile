@@ -1,6 +1,5 @@
-FILES = src/Client.java src/Unit.java src/ClientLoader.java src/TextDisplay.java
-MANIFEST_CLASSPATH = build/\n  lib/jar/lwjgl.jar\n  lib/jar/slick-util.jar\n
-
+FILES = src/Client.java src/Unit.java src/ClientLoader.java src/TextRenderer.java
+MANIFEST_CLASSPATH = build/\n  lib/jar/lwjgl.jar\n
 
 all: jar
 

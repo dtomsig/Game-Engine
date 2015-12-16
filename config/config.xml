@@ -4,4 +4,8 @@
     <move-left>a</move-left>
     <move-backwards>s</move-backwards>
     <move-right>r</move-right>
+    <duck>alt</duck>
 </keyboard>
+<video>
+    <resolution>640x480</resolution>
+</video>
