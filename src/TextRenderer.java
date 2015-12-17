@@ -1,3 +1,6 @@
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
@@ -14,10 +17,6 @@ import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTPackContext;
 import org.lwjgl.stb.STBTTPackedchar;
 import org.lwjgl.system.libffi.Closure;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.stb.STBTruetype.*;
 import static org.lwjgl.system.MemoryUtil.*;
@@ -52,7 +51,7 @@ public class TextRenderer
         {
             ByteBuffer bitmap = BufferUtils.createByteBuffer(BITMAP_W *
                                                              BITMAP_H);    
-            ByteBuffer ttf = ioResourceToByteBuffer("assets/Fonts/PaddingtonSc.ttf", 160*1024);
+            ByteBuffer ttf = IOUtil.ioResourceToByteBuffer("assets/Fonts/PaddingtonSc.ttf", 160*1024);
         }
         catch (IOException e)
         {
