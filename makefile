@@ -1,8 +1,12 @@
-FILES = src/Client.java src/Unit.java src/ClientLoader.java src/TextRenderer.java
-MANIFEST_CLASSPATH = build/\n  lib/lwjgl/jar/lwjgl.jar\n  lib/build/IOUtil.class\n
+FILES = src/Client.java src/Unit.java src/ClientLoader.java src/TextRenderer.java 
+MANIFEST_CLASSPATH = build/\n  lib/lwjgl/jar/lwjgl.jar\n  lib/ioutil/class/\n
 
 all: IOUtil jar
 
+ttTest:
+	javac -d build -cp "lib/ioutil/class/:lib/lwjgl/jar/lwjgl.jar" src/TruetypeOversample.java
+	java -cp "build/:lib/ioutil/class/:lib/lwjgl/jar/lwjgl.jar" TruetypeOversample
+	
 IOUtil:
 	javac -d lib/ioutil/class -cp "lib/lwjgl/jar/lwjgl.jar" lib/ioutil/src/IOUtil.java
 
@@ -13,7 +17,9 @@ jar:
 	jar -cfm run.jar manifest.txt
 	rm -f manifest.txt
 	java -jar run.jar
-	
+
 clean:
-	rm -f *.so *.jar *.log
+	rm -f *.so *.jar
+	rm -rf ./lib/ioutil/class/*
+	rm -rf ./build/*
 	
