@@ -8,6 +8,7 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
 
@@ -77,7 +78,6 @@ public class Client
         this.clientState = state.MAIN_MENU;
         
         /* Prepares the client window */
-        
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
         GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
@@ -111,13 +111,12 @@ public class Client
         // Main display loop. Calls upon resources to produce the next frame.
         while(GLFW.glfwWindowShouldClose(windowHandle) == GLFW.GLFW_FALSE)
         {
-            initialTime = GLFW.glfwGetTime();
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+            initialTime = GLFW.glfwGetTime();
             GLFW.glfwGetFramebufferSize(windowHandle, physicalWindowWidth,
                                         physicalWindowHeight);
-                                        
-            physicalWindowWidth.rewind();
-            physicalWindowHeight.rewind();
+            //physicalWindowWidth.rewind();
+            //physicalWindowHeight.rewind();
             
             switch(clientState)
             {
@@ -129,8 +128,6 @@ public class Client
             
             fps = 1 / (GLFW.glfwGetTime() - initialTime);
             this.renderFPS();
-            
-            System.out.println("FPS: " + fps);
             GLFW.glfwSwapBuffers(windowHandle);
             GLFW.glfwPollEvents();
         }
