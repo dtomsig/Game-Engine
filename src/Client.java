@@ -11,7 +11,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
-
 public class Client
 {   
     private double initialTime, fps;
@@ -23,6 +22,7 @@ public class Client
     private state clientState;
     private static GLFWErrorCallback errorCallback = GLFWErrorCallback.
                                                      createPrint(System.err);
+    private static KeyboardHandlerer keyCallBack;
     
     public enum state
     {   
@@ -31,19 +31,19 @@ public class Client
         
         private state(int value)
         {
-            this.value = value;
+            value = value;
         }
         
         int getValue()
         {
-            return this.value;
+            return value;
         }
     }
     
     public Client()
     {
-        this.resolutionHeight = 640;
-        this.resolutionWidth = 480;
+        resolutionHeight = 640;
+        resolutionWidth = 480;
     }
     
     public void run()
@@ -51,7 +51,7 @@ public class Client
         try 
         {
             initClient();
-            display();
+            loop();
             GLFW.glfwDestroyWindow(windowHandle);
         }
         finally
@@ -70,12 +70,10 @@ public class Client
         if(glfwErrorState == GL11.GL_FALSE)
             throw new IllegalStateException("Failed to initialize.");
         
-        this.windowHandle = GLFW.glfwCreateWindow(this.resolutionHeight, 
-                                                  this.resolutionWidth, 
-                                                  "Elements Game",
-                                                  MemoryUtil.NULL, 
-                                                  MemoryUtil.NULL);
-        this.clientState = state.MAIN_MENU;
+        windowHandle = GLFW.glfwCreateWindow(resolutionHeight, resolutionWidth, 
+                                             "Elements Game", MemoryUtil.NULL, 
+                                             MemoryUtil.NULL);
+        clientState = state.MAIN_MENU;
         
         /* Prepares the client window */
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
@@ -87,7 +85,6 @@ public class Client
         GL.setCapabilities(GL.createCapabilities());
         
         /* Sets the initial GL context. */
-        
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_LIGHTING);
@@ -101,36 +98,52 @@ public class Client
         
         /* Sets up TextRendering. */
         textRenderer = new TextRenderer();
-        textRenderer.load_fonts();        
+        textRenderer.load_fonts(); 
+        
+        /* Sets up keyboard scanning. */
+        GLFW.glfwSetKeyCallback(windowHandle, keyCallBack = new KeyboardHandlerer());
     }
     
-    public void display()
+    public void loop()
     {   
         GL11.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         
-        // Main display loop. Calls upon resources to produce the next frame.
+        // Main game loop. Calls upon resources to produce the next frame.
         while(GLFW.glfwWindowShouldClose(windowHandle) == GLFW.GLFW_FALSE)
         {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             initialTime = GLFW.glfwGetTime();
             GLFW.glfwGetFramebufferSize(windowHandle, physicalWindowWidth,
                                         physicalWindowHeight);
-            //physicalWindowWidth.rewind();
-            //physicalWindowHeight.rewind();
+            physicalWindowWidth.rewind();
+            physicalWindowHeight.rewind();
             
             switch(clientState)
             {
                 case MAIN_MENU:
-                    this.drawSquare();
+                    drawSquare();
                     
                 case IN_GAME:                    
             }
-            
-            fps = 1 / (GLFW.glfwGetTime() - initialTime);
-            this.renderFPS();
+                
+                if(keyCallBack.isKeyDown(GLFW.GLFW_KEY_SPACE))
+                     System.out.println("Space Key Pressed");
+                
+                fps = 1 / (GLFW.glfwGetTime() - initialTime);
+            renderFPS();
             GLFW.glfwSwapBuffers(windowHandle);
             GLFW.glfwPollEvents();
         }
+    }
+    
+    public void render()
+    {
+        
+    }
+    
+    public void update()
+    {
+        
     }
     
     public void resize(/*GL11.GLsizei w, GL11.GLsizei height*/)
@@ -152,8 +165,6 @@ public class Client
     public void renderFPS()
     {
         textRenderer.print(0, 0, 0, "FPS: " + fps);
-        //TextRenderer.renderText("Main Menu:", 50, 50);
-       // TextRenderer.renderText("Options:", 50, 60);*/
     }
     
 }
