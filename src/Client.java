@@ -66,8 +66,8 @@ public class Client
     public void initClient()
     {   
         /* Sets default resolution values. */
-        resolutionHeight = 640;
-        resolutionWidth = 480;
+        resolutionHeight = 480;
+        resolutionWidth = 640;
         physicalWindowHeight.put(0, resolutionHeight);
         physicalWindowWidth.put(0, resolutionWidth);
         
@@ -77,7 +77,7 @@ public class Client
         if(glfwErrorState == GL11.GL_FALSE)
             throw new IllegalStateException("Failed to initialize.");
         
-        windowHandle = GLFW.glfwCreateWindow(resolutionHeight, resolutionWidth, 
+        windowHandle = GLFW.glfwCreateWindow(resolutionWidth, resolutionHeight, 
                                              "Elements Game", MemoryUtil.NULL, 
                                              MemoryUtil.NULL);
                                              
@@ -184,7 +184,6 @@ public class Client
     {
         scalingFactorX = physicalWindowWidth.get(0) / resolutionWidth;
         scalingFactorY = physicalWindowHeight.get(0) / resolutionHeight;
-        GL11.glViewport(0, 0, physicalWindowWidth.get(0), physicalWindowHeight.get(0));
     }
     
     public void changeResolution(int newResolutionWidth, int newResolutionHeight)
