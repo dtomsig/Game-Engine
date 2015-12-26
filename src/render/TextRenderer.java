@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.HashMap;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLUtil;
@@ -14,7 +15,7 @@ public class TextRenderer
 {   
     private static int BITMAP_W = 512;
     private static int BITMAP_H = 512;
-    private static float[] scale = {20.0f, 14.0f};
+    private static float[] pixelSize = {40.0f, 12.0f};
     private static float[] sf = {0, 1, 2, 0, 1, 2};
     
     private boolean integer_align;
@@ -24,11 +25,17 @@ public class TextRenderer
     private int font_tex;
     private long window;
     private STBTTAlignedQuad q = STBTTAlignedQuad.malloc();
+    private HashMap<String, Font> loadedFonts;
     private STBTTPackedchar.Buffer chardata;
     
-    
-    public void load_fonts()
+    private class Font
     {
+        
+    }
+
+    public void load_fonts(String fontName, int size)
+    {
+        pixelSize[0] = size;
         font_tex = GL11.glGenTextures();
         chardata = STBTTPackedchar.mallocBuffer(6 * 128);
              
@@ -36,25 +43,30 @@ public class TextRenderer
         {
             ByteBuffer bitmap = BufferUtils.createByteBuffer(BITMAP_W *
                                                              BITMAP_H);    
-            ByteBuffer ttf = IOUtil.ioResourceToByteBuffer("assets/fonts/Monospace.ttf", 160*1024);            
+            ByteBuffer ttf = IOUtil.ioResourceToByteBuffer("assets/fonts/" + fontName + ".ttf", 160*1024);           
             STBTTPackContext pc = STBTTPackContext.malloc();
             STBTruetype.stbtt_PackBegin(pc, bitmap, BITMAP_W, BITMAP_H, 0, 1,
                                         null);
 
-            for(int i = 0; i < 2; i++)
+            for(int i = 0; i < 1; i++)
             {
                 chardata.position((i * 3 + 0) * 128 + 32);
                 STBTruetype.stbtt_PackSetOversampling(pc, 1, 1);
-                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, scale[i], 32, 95, 
+                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, pixelSize[i], 32, 95, 
                                                 chardata);
                 chardata.position((i * 3 + 1) * 128 + 32);
                 STBTruetype.stbtt_PackSetOversampling(pc, 2, 2);
-                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, scale[i], 32, 95,
+                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, pixelSize[i], 32, 95,
                                                 chardata);
                 chardata.position((i * 3 + 2) * 128 + 32);
                 STBTruetype.stbtt_PackSetOversampling(pc, 3, 1);
-                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, scale[i], 32, 95, 
+                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, pixelSize[i], 32, 95, 
                                                 chardata);
+                chardata.position((i * 4 + 2) * 128 + 32);
+                STBTruetype.stbtt_PackSetOversampling(pc, 4, 1);
+                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, pixelSize[i], 32, 95, 
+                                                chardata);
+                                                
             }
             
             STBTruetype.stbtt_PackEnd(pc);  
@@ -87,19 +99,7 @@ public class TextRenderer
         GL11.glVertex2f(x0, 640 - y1);
     } 
     
-    private void loopmode(float dt) 
-    {
-        if(dt > 0.25f) 
-            dt = 0.25f;
-            
-        if(dt < 0.01f)
-            dt = 0.01f;
-
-        rotate_t += dt;
-        translate_t += dt;
-    }
-    
-    public void print(float x, float y, int font, String text)
+    public void print(float x, float y, int font, int size, String text)
     {   
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -122,7 +122,6 @@ public class TextRenderer
         
         GL11.glEnd();
         GL11.glDisable(GL11.GL_BLEND);
-
     }
 }
 

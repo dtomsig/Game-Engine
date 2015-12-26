@@ -1,4 +1,9 @@
-FILES = src/Client.java src/Unit.java src/ClientLoader.java src/render/TextRenderer.java src/KeyboardHandlerer.java
+FILES = src/Client.java \
+		src/game/Unit.java \
+        src/ClientLoader.java \
+		src/render/TextRenderer.java \
+	    src/KeyboardHandlerer.java \
+        src/render/ObjectRenderer.java
 MANIFEST_CLASSPATH = build/\n  lib/lwjgl/jar/lwjgl.jar\n  lib/ioutil/class/\n
 
 all: IOUtil jar

@@ -4,6 +4,9 @@
     <move-left>a</move-left>
     <move-backwards>s</move-backwards>
     <move-right>r</move-right>
+    <all-chat>y</all-chat>
+    <team-chat>t</team-chat>
+    <voice-chat>v</voice-chat>
     <duck>alt</duck>
     <jump>space</jump></jump>
 </keyboard>

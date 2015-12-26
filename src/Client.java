@@ -5,20 +5,22 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWVidMode;  
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryUtil;
 
 public class Client
 {   
-    private double initialTime, fps;
-    private int glfwErrorState, resolutionWidth, resolutionHeight; 
+    private boolean showFps = false;
+    private double initialTime, fps, scalingFactorX, scalingFactorY;
+    private int glfwErrorState, resolutionHeight, resolutionWidth;
     private IntBuffer physicalWindowWidth = BufferUtils.createIntBuffer(1);
     private IntBuffer physicalWindowHeight = BufferUtils.createIntBuffer(1);
     private long windowHandle;
-    private TextRenderer textRenderer;
+    private TextRenderer TextRenderer;
     private state clientState;
     private static GLFWErrorCallback errorCallback = GLFWErrorCallback.
                                                      createPrint(System.err);
@@ -42,8 +44,7 @@ public class Client
     
     public Client()
     {
-        resolutionHeight = 640;
-        resolutionWidth = 480;
+        
     }
     
     public void run()
@@ -64,15 +65,23 @@ public class Client
     
     public void initClient()
     {   
+        /* Sets default resolution values. */
+        resolutionHeight = 640;
+        resolutionWidth = 480;
+        physicalWindowHeight.put(0, resolutionHeight);
+        physicalWindowWidth.put(0, resolutionWidth);
+        
+        /* Sets up the errorSTate and sets the window handle. */
         glfwErrorState = GLFW.glfwInit();
         GLFW.glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
-        
         if(glfwErrorState == GL11.GL_FALSE)
             throw new IllegalStateException("Failed to initialize.");
         
         windowHandle = GLFW.glfwCreateWindow(resolutionHeight, resolutionWidth, 
                                              "Elements Game", MemoryUtil.NULL, 
                                              MemoryUtil.NULL);
+                                             
+        /* Sets the client state to be the main menu initially. */                                     
         clientState = state.MAIN_MENU;
         
         /* Prepares the client window */
@@ -97,8 +106,8 @@ public class Client
         GL11.glLoadIdentity();
         
         /* Sets up TextRendering. */
-        textRenderer = new TextRenderer();
-        textRenderer.load_fonts(); 
+        TextRenderer = new TextRenderer();
+        TextRenderer.load_fonts("Monospace", 22); 
         
         /* Sets up keyboard scanning. */
         GLFW.glfwSetKeyCallback(windowHandle, keyCallBack = new KeyboardHandlerer());
@@ -111,60 +120,82 @@ public class Client
         // Main game loop. Calls upon resources to produce the next frame.
         while(GLFW.glfwWindowShouldClose(windowHandle) == GLFW.GLFW_FALSE)
         {
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-            initialTime = GLFW.glfwGetTime();
-            GLFW.glfwGetFramebufferSize(windowHandle, physicalWindowWidth,
-                                        physicalWindowHeight);
-            physicalWindowWidth.rewind();
-            physicalWindowHeight.rewind();
-            
-            switch(clientState)
-            {
-                case MAIN_MENU:
-                    drawSquare();
-                    
-                case IN_GAME:                    
-            }
-                
-                if(keyCallBack.isKeyDown(GLFW.GLFW_KEY_SPACE))
-                     System.out.println("Space Key Pressed");
-                
-                fps = 1 / (GLFW.glfwGetTime() - initialTime);
-            renderFPS();
-            GLFW.glfwSwapBuffers(windowHandle);
-            GLFW.glfwPollEvents();
+            update();
+            render();
         }
-    }
-    
-    public void render()
-    {
-        
     }
     
     public void update()
     {
+        int tempWidth = physicalWindowWidth.get(0), 
+            tempHeight = physicalWindowHeight.get(0);
         
-    }
-    
-    public void resize(/*GL11.GLsizei w, GL11.GLsizei height*/)
-    {
+        GLFW.glfwGetFramebufferSize(windowHandle, physicalWindowHeight,
+                                    physicalWindowWidth);
+        physicalWindowWidth.rewind();
+        physicalWindowHeight.rewind();
+                        
+        if(physicalWindowWidth.get(0) != tempWidth || physicalWindowHeight.get(0) != tempHeight)
+            resize();
             
+        if(keyCallBack.isKeyDown(GLFW.GLFW_KEY_S))
+            showFps = true;
+        else
+            showFps = false;
     }
     
-    public void drawSquare()
-    {        
-        GL11.glColor3f(0.1f, 0.1f, 0.6f);
+    public void render()
+    {
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        initialTime = GLFW.glfwGetTime();  
+                    
+        switch(clientState)
+        {
+            case MAIN_MENU:
+                ObjectRenderer.drawTriangle();
+                renderMap();
+                
+                                    
+            case IN_GAME:
+        }
+        
+        fps = 1 / (GLFW.glfwGetTime() - initialTime);
+        
+        if(showFps)
+            renderFPS();
+  
+        GLFW.glfwSwapBuffers(windowHandle);
+        GLFW.glfwPollEvents();
+    }
+    
+    public void renderMap()
+    {
+        GL11.glColor3f(0.0f, 1.0f, 0.0f);
         GL11.glBegin(GL11.GL_POLYGON);
-        GL11.glVertex3f(150, 150, 0.0f);
-        GL11.glVertex3f(175, 200, 0.0f);
-        GL11.glVertex3f(200, 150, 0.0f);
-        GL11.glVertex3f(175, 100, 0.0f); 
+            GL11.glVertex3f(450f, 0f, 0.5f);
+            GL11.glVertex3f(450f, 30f, 0.0f);
+            GL11.glVertex3f(480f, 30f, 0.0f);
+            GL11.glVertex3f(480f, 0.0f, 0.0f);
         GL11.glEnd();
+        TextRenderer.print(0, 0, 1, 40, "Hit S to show the fps to the physical window." );
+    }
+    
+    public void resize()
+    {
+        scalingFactorX = physicalWindowWidth.get(0) / resolutionWidth;
+        scalingFactorY = physicalWindowHeight.get(0) / resolutionHeight;
+        GL11.glViewport(0, 0, physicalWindowWidth.get(0), physicalWindowHeight.get(0));
+    }
+    
+    public void changeResolution(int newResolutionWidth, int newResolutionHeight)
+    {
+        
     }
     
     public void renderFPS()
     {
-        textRenderer.print(0, 0, 0, "FPS: " + fps);
+        
+        TextRenderer.print(0, 15, 1, 22, "FPS:" + fps);
     }
     
 }
