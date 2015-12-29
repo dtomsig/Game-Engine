@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -15,75 +16,73 @@ public class TextRenderer
 {   
     private static int BITMAP_W = 512;
     private static int BITMAP_H = 512;
-    private static float[] pixelSize = {40.0f, 12.0f};
-    private static float[] sf = {0, 1, 2, 0, 1, 2};
-    
-    private boolean integer_align;
-    private float rotate_t, translate_t;
     private FloatBuffer xb = MemoryUtil.memAllocFloat(1);
     private FloatBuffer yb = MemoryUtil.memAllocFloat(1);
-    private int font_tex;
-    private long window;
     private STBTTAlignedQuad q = STBTTAlignedQuad.malloc();
-    private HashMap<String, Font> loadedFonts;
-    private STBTTPackedchar.Buffer chardata;
+    private HashMap<String, Font> loadedFonts = new HashMap<String, Font>();
     
     private class Font
     {
-        
-    }
+        public String fontName;
+        public STBTTPackedchar.Buffer chardata;
+        public int fontSize;
+        public int font_tex;
+    };
 
-    public void load_fonts(String fontName, int size)
+    public void load_font(String fontName, int fontSize)
     {
-        pixelSize[0] = size;
-        font_tex = GL11.glGenTextures();
-        chardata = STBTTPackedchar.mallocBuffer(6 * 128);
-             
+        /* Leaves the function if the font is already loaded. */
+        if(loadedFonts.containsKey(fontName + fontSize))
+            return;
+    
+        /* Verifies that the file exists, throws an exception if it does not. */
+        ByteBuffer ttf;
+      
         try
         {
-            ByteBuffer bitmap = BufferUtils.createByteBuffer(BITMAP_W *
-                                                             BITMAP_H);    
-            ByteBuffer ttf = IOUtil.ioResourceToByteBuffer("assets/fonts/" + fontName + ".ttf", 160*1024);           
-            STBTTPackContext pc = STBTTPackContext.malloc();
-            STBTruetype.stbtt_PackBegin(pc, bitmap, BITMAP_W, BITMAP_H, 0, 1,
-                                        null);
-
-            for(int i = 0; i < 1; i++)
-            {
-                chardata.position((i * 3 + 0) * 128 + 32);
-                STBTruetype.stbtt_PackSetOversampling(pc, 1, 1);
-                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, pixelSize[i], 32, 95, 
-                                                chardata);
-                chardata.position((i * 3 + 1) * 128 + 32);
-                STBTruetype.stbtt_PackSetOversampling(pc, 2, 2);
-                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, pixelSize[i], 32, 95,
-                                                chardata);
-                chardata.position((i * 3 + 2) * 128 + 32);
-                STBTruetype.stbtt_PackSetOversampling(pc, 3, 1);
-                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, pixelSize[i], 32, 95, 
-                                                chardata);
-                chardata.position((i * 4 + 2) * 128 + 32);
-                STBTruetype.stbtt_PackSetOversampling(pc, 4, 1);
-                STBTruetype.stbtt_PackFontRange(pc, ttf, 0, pixelSize[i], 32, 95, 
-                                                chardata);
-                                                
-            }
-            
-            STBTruetype.stbtt_PackEnd(pc);  
-            pc.free();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, font_tex);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_ALPHA, BITMAP_W, 
-                              BITMAP_H, 0, GL11.GL_ALPHA, GL11.GL_UNSIGNED_BYTE,
-                              bitmap);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, 
-                                 GL11.GL_LINEAR);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, 
-                                 GL11.GL_LINEAR);
+            ttf = IOUtil.ioResourceToByteBuffer("assets/fonts/" + fontName + ".ttf", 160*1024);
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             throw new RuntimeException(e);
         }
+
+        /* Stores the Font data and the OpenGL Font texture data. */
+        ByteBuffer bitmap = BufferUtils.createByteBuffer(BITMAP_W * BITMAP_H); 
+        int font_tex = GL11.glGenTextures();
+        STBTTPackedchar.Buffer chardata = STBTTPackedchar.mallocBuffer(6 * 128);
+         
+        STBTTPackContext pc = STBTTPackContext.malloc();
+        STBTruetype.stbtt_PackBegin(pc, bitmap, BITMAP_W, BITMAP_H, 0, 1, null);
+        
+        chardata.position(32);
+        STBTruetype.stbtt_PackSetOversampling(pc, 1, 1);
+        STBTruetype.stbtt_PackFontRange(pc, ttf, 0, fontSize, 32, 95, chardata);
+        chardata.position(128 + 32);
+        STBTruetype.stbtt_PackSetOversampling(pc, 2, 2);
+        STBTruetype.stbtt_PackFontRange(pc, ttf, 0, fontSize, 32, 95, chardata);
+        chardata.position(128 * 2 + 32);
+        STBTruetype.stbtt_PackSetOversampling(pc, 3, 1);
+        STBTruetype.stbtt_PackFontRange(pc, ttf, 0, fontSize, 32, 95, chardata);
+
+
+        pc.free();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, font_tex);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_ALPHA, BITMAP_W,
+                          BITMAP_H, 0, GL11.GL_ALPHA, GL11.GL_UNSIGNED_BYTE,
+                          bitmap);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, 
+                             GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, 
+                             GL11.GL_LINEAR);
+                             
+        /* Stores the data in the Font, and stores the Font in the map.*/
+        Font newFont = new Font();
+        newFont.fontName = fontName;
+        newFont.fontSize = fontSize;
+        newFont.chardata = chardata;
+        newFont.font_tex = font_tex;
+        loadedFonts.put(fontName + fontSize, newFont);
     }
     
     public static void drawBoxTC(float x0, float y0, float x1, float y1, 
@@ -99,13 +98,22 @@ public class TextRenderer
         GL11.glVertex2f(x0, 640 - y1);
     } 
     
-    public void print(float x, float y, int font, int size, String text)
+    public void print(float x, float y, int fontSize, String fontName, String text)
     {   
+        /* Checks to see if the font is loaded. If not, loads the font. */
+        if(!loadedFonts.containsKey(fontName + fontSize))
+            load_font("Monospace", fontSize);
+            
+        /* Gets the data from the stored Font. */
+        STBTTPackedchar.Buffer chardata = loadedFonts.get(fontName + fontSize).chardata;
+        int font_tex = loadedFonts.get(fontName + fontSize).font_tex;
+        chardata.position(0);
+        
+        /* Draws the text to the screen. */
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         xb.put(0, x);
         yb.put(0, 640 - y);
-        chardata.position(font * 128);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, font_tex);
         GL11.glBegin(GL11.GL_QUADS);
@@ -114,8 +122,7 @@ public class TextRenderer
         for(int i = 0; i < text.length(); i++) 
         {
             STBTruetype.stbtt_GetPackedQuad(chardata, BITMAP_W, BITMAP_H, 
-                                            text.charAt(i), 
-                                xb, yb, q, font == 0 && integer_align ? 1 : 0);
+                                            text.charAt(i), xb, yb, q, 0);
             drawBoxTC(q.x0(), q.y0(), q.x1(), q.y1(), q.s0(), q.t0(), q.s1(), 
                     q.t1());
         }

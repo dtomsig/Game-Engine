@@ -107,7 +107,6 @@ public class Client
         
         /* Sets up TextRendering. */
         TextRenderer = new TextRenderer();
-        TextRenderer.load_fonts("Monospace", 22); 
         
         /* Sets up keyboard scanning. */
         GLFW.glfwSetKeyCallback(windowHandle, keyCallBack = new KeyboardHandlerer());
@@ -177,7 +176,8 @@ public class Client
             GL11.glVertex3f(480f, 30f, 0.0f);
             GL11.glVertex3f(480f, 0.0f, 0.0f);
         GL11.glEnd();
-        TextRenderer.print(0, 0, 1, 40, "Hit S to show the fps to the physical window." );
+        TextRenderer.print(0, 0, 22, "Monospace", "Hit S to show the fps to the"
+                           + " physical window.");
     }
     
     public void resize()
@@ -193,8 +193,7 @@ public class Client
     
     public void renderFPS()
     {
-        
-        TextRenderer.print(0, 15, 1, 22, "FPS:" + fps);
+        TextRenderer.print(0, 15, 22, "Monospace", "FPS: " + fps);
     }
     
 }
