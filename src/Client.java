@@ -105,8 +105,12 @@ public class Client
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadIdentity();
         
-        /* Sets up TextRendering. */
+        /* Sets up text rendering. */
         TextRenderer = new TextRenderer();
+        
+        /* Sets up object rendering. */
+        ObjectRenderer.loadModel("test");
+        
         
         /* Sets up keyboard scanning. */
         GLFW.glfwSetKeyCallback(windowHandle, keyCallBack = new KeyboardHandlerer());
@@ -129,14 +133,13 @@ public class Client
         int tempWidth = physicalWindowWidth.get(0), 
             tempHeight = physicalWindowHeight.get(0);
         
+        /* Determines if the window is manually resized and calls to resizes. */
         GLFW.glfwGetFramebufferSize(windowHandle, physicalWindowHeight,
                                     physicalWindowWidth);
         physicalWindowWidth.rewind();
         physicalWindowHeight.rewind();
-                        
         if(physicalWindowWidth.get(0) != tempWidth || physicalWindowHeight.get(0) != tempHeight)
             resize();
-            
         if(keyCallBack.isKeyDown(GLFW.GLFW_KEY_S))
             showFps = true;
         else
@@ -151,7 +154,7 @@ public class Client
         switch(clientState)
         {
             case MAIN_MENU:
-                ObjectRenderer.drawTriangle();
+                ObjectRenderer.render();
                 renderMap();
                 
                                     
@@ -171,10 +174,10 @@ public class Client
     {
         GL11.glColor3f(0.0f, 1.0f, 0.0f);
         GL11.glBegin(GL11.GL_POLYGON);
-            GL11.glVertex3f(450f, 0f, 0.5f);
-            GL11.glVertex3f(450f, 30f, 0.0f);
-            GL11.glVertex3f(480f, 30f, 0.0f);
-            GL11.glVertex3f(480f, 0.0f, 0.0f);
+            GL11.glVertex3f( 450.0f, 0.0f, 0.5f);
+            GL11.glVertex3f( 450.0f, 30f, 0.0f);
+            GL11.glVertex3f( 480.0f, 30f, 0.0f);
+            GL11.glVertex3f( 480.0f, 0.0f, 0.0f);
         GL11.glEnd();
         TextRenderer.print(0, 0, 22, "Monospace", "Hit S to show the fps to the"
                            + " physical window.");

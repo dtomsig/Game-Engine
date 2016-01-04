@@ -1,6 +1,6 @@
 <?xml version = "1.0" encoding = "UTF-8"?> 
 <keyboard>
-    <move-forwards>w</move-forwards>
+    <move-forwards>primary = 'w' secondary = 'null'</move-forwards>
     <move-left>a</move-left>
     <move-backwards>s</move-backwards>
     <move-right>r</move-right>

@@ -50,21 +50,14 @@ public class TextRenderer
         /* Stores the Font data and the OpenGL Font texture data. */
         ByteBuffer bitmap = BufferUtils.createByteBuffer(BITMAP_W * BITMAP_H); 
         int font_tex = GL11.glGenTextures();
-        STBTTPackedchar.Buffer chardata = STBTTPackedchar.mallocBuffer(6 * 128);
+        STBTTPackedchar.Buffer chardata = STBTTPackedchar.mallocBuffer(3 * 128);
          
         STBTTPackContext pc = STBTTPackContext.malloc();
         STBTruetype.stbtt_PackBegin(pc, bitmap, BITMAP_W, BITMAP_H, 0, 1, null);
         
         chardata.position(32);
-        STBTruetype.stbtt_PackSetOversampling(pc, 1, 1);
-        STBTruetype.stbtt_PackFontRange(pc, ttf, 0, fontSize, 32, 95, chardata);
-        chardata.position(128 + 32);
         STBTruetype.stbtt_PackSetOversampling(pc, 2, 2);
         STBTruetype.stbtt_PackFontRange(pc, ttf, 0, fontSize, 32, 95, chardata);
-        chardata.position(128 * 2 + 32);
-        STBTruetype.stbtt_PackSetOversampling(pc, 3, 1);
-        STBTruetype.stbtt_PackFontRange(pc, ttf, 0, fontSize, 32, 95, chardata);
-
 
         pc.free();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, font_tex);
