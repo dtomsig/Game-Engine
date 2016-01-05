@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.IntBuffer;
 import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
@@ -7,15 +10,45 @@ import org.lwjgl.opengl.GL15;
 
 public class ObjectRenderer
 {
-    private static int vertexBufferHandle, colorBufferHandle;
+    private static int vertexBufferHandle, colorBufferHandle, numVertexVertices, 
+                                                              numColorVertices;
     private static FloatBuffer vertexBuffer, colorBuffer;
-        
-    public static void loadModel(String fileName)
-    {    
+    
+    public ObjectRenderer()
+    {
         /* Generates handles for the color and vertex buffers. */
         vertexBufferHandle = GL15.glGenBuffers();
         colorBufferHandle = GL15.glGenBuffers();
+    }
+        
+    public static void loadModel(String fileName)
+    {
+        BufferedReader inputFile;
+        String lineData;
+        String[] parsedData;
+        
+        
+        try
+        {
+            inputFile = new BufferedReader(new FileReader("assets/models/" + fileName));
+            
+            while((lineData = inputFile.readLine()) != null)
+            {
+                
                     
+            }
+            
+            
+            
+        }
+        catch(IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+        
+    public static void loadTriangle()
+    {                        
         /* Generates the color buffer. */
         vertexBuffer = BufferUtils.createFloatBuffer(9);
         vertexBuffer.put(new float[]
@@ -29,8 +62,8 @@ public class ObjectRenderer
         /* Generates the vertex buffer */       
         colorBuffer = BufferUtils.createFloatBuffer(9);
         colorBuffer.put(new float[]
-                                  {  1.0f    ,  0.0f    ,  0.0f    , 
-                                     0.0f    ,  1.0f    ,  0.0f    , 
+                                  {  0.5f    ,  1.0f    ,  0.5f    , 
+                                     1.0f    ,  0.5f    ,  0.0f    , 
                                      0.0f    ,  0.0f    ,  1.0f  
                                   }
                         );
@@ -51,14 +84,12 @@ public class ObjectRenderer
         GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
         GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
         
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferHandle);
+        /*GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferHandle);
         GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, 0L);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, colorBufferHandle);
         GL11.glColorPointer(3, GL11.GL_FLOAT, 0, 4);
         
-        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 4);
-        
-
+        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 4);*/
     }
 
 }   

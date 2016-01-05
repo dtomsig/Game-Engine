@@ -109,7 +109,8 @@ public class Client
         TextRenderer = new TextRenderer();
         
         /* Sets up object rendering. */
-        ObjectRenderer.loadModel("test");
+        ObjectRenderer.loadModel("box.obj");
+        //ObjectRenderer.loadTriangle();
         
         
         /* Sets up keyboard scanning. */
@@ -173,12 +174,6 @@ public class Client
     public void renderMap()
     {
         GL11.glColor3f(0.0f, 1.0f, 0.0f);
-        GL11.glBegin(GL11.GL_POLYGON);
-            GL11.glVertex3f( 450.0f, 0.0f, 0.5f);
-            GL11.glVertex3f( 450.0f, 30f, 0.0f);
-            GL11.glVertex3f( 480.0f, 30f, 0.0f);
-            GL11.glVertex3f( 480.0f, 0.0f, 0.0f);
-        GL11.glEnd();
         TextRenderer.print(0, 0, 22, "Monospace", "Hit S to show the fps to the"
                            + " physical window.");
     }
