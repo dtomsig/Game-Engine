@@ -3,16 +3,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
-
 public class ObjectRenderer
 {
-    private static int vertexBufferHandle, colorBufferHandle, numVertexVertices, 
-                                                              numColorVertices;
+    private static int vertexBufferHandle, colorBufferHandle;
     private static FloatBuffer vertexBuffer, colorBuffer;
+    private ArrayList<Float> vertexData;    
     
     public ObjectRenderer()
     {
@@ -27,19 +27,29 @@ public class ObjectRenderer
         String lineData;
         String[] parsedData;
         
-        
         try
         {
             inputFile = new BufferedReader(new FileReader("assets/models/" + fileName));
             
             while((lineData = inputFile.readLine()) != null)
             {
-                
+                if(lineData.charAt(0) == 'v' || lineData.charAt(0) == 'f')
+                {
+                    parsedData = lineData.split("\\s+");
                     
+                    switch(parsedData[0])
+                    {
+                        case("v"):
+                            //vertexData.add(float);
+                            break;
+                        case("vt"):
+                            break;
+                        case("f"):
+                            break;
+                        
+                    }
+                }
             }
-            
-            
-            
         }
         catch(IOException e)
         {
@@ -68,9 +78,7 @@ public class ObjectRenderer
                                   }
                         );
         colorBuffer.flip();
-        
-
-        
+    
         /* Associates the handles with buffer data. */
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferHandle);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexBuffer, GL15.GL_STATIC_DRAW);

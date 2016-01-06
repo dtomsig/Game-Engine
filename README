@@ -1,0 +1,9 @@
+INSTRUCTIONS:
+
+To run the game engine:
+
+./make
+
+
+Currently, this game engine only supports text rendering using immediate mode.
+I'm working on adding .obj rendering and map rendering and controls.

@@ -175,7 +175,7 @@ public class Client
     {
         GL11.glColor3f(0.0f, 1.0f, 0.0f);
         TextRenderer.print(0, 0, 22, "Monospace", "Hit S to show the fps to the"
-                           + " physical window.");
+                                     + " physical window.");
     }
     
     public void resize()
