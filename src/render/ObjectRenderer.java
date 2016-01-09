@@ -10,27 +10,61 @@ import org.lwjgl.opengl.GL15;
 
 public class ObjectRenderer
 {
-    private static int vertexBufferHandle, colorBufferHandle;
-    private static FloatBuffer vertexBuffer, colorBuffer;
-    private ArrayList<Float> vertexData;    
+    private ArrayList<GraphicsObject> graphicsObjects;
+    private int vertexBufferHandle, colorBufferHandle;
+
+    
+    public class GraphicsObject
+    {
+        public int vertexBufferHandle = GL15.glGenBuffers(),
+                   colorBufferHandle  = GL15.glGenBuffers();
+        public FloatBuffer vertexBuffer, colorBuffer, textureBuffer;
+    }
     
     public ObjectRenderer()
     {
-        /* Generates handles for the color and vertex buffers. */
-        vertexBufferHandle = GL15.glGenBuffers();
-        colorBufferHandle = GL15.glGenBuffers();
+        /* Generates the arraylist that will hold of all the graphics objects. */
+        graphicsObjects = new ArrayList<GraphicsObject>();
     }
         
-    public static void loadModel(String fileName)
+    public void createObjModel(String fileName, int clientWidth, int clientHeight)
     {
         BufferedReader inputFile;
+        char[] twoCharBuffer = new char[2];
+        GraphicsObject newGraphicsObject = new GraphicsObject();
+        int sizeTextureBuffer = 0, sizeVertexBuffer = 0;
         String lineData;
         String[] parsedData;
-        
+
         try
         {
             inputFile = new BufferedReader(new FileReader("assets/models/" + fileName));
             
+            
+            /* Measures the sizes of the different buffers in the .obj file. */
+            while(inputFile.read(twoCharBuffer, 0, 2) != -1)
+            {
+                switch(String.valueOf(twoCharBuffer))
+                {
+                    case("v "):
+                        sizeVertexBuffer += 3;
+                        break;
+                    
+                    case("vt"):
+                        sizeTextureBuffer += 2;
+                        break;
+                    
+                    case("f "):
+                        sizeTextureBuffer += 2;
+                        break;
+                }
+                inputFile.readLine();
+            }
+            
+            /* Allocates space for the buffers based upon # of vertices. */
+            
+                        
+            /* Stores the data in the  object's buffers from the OBJ file. */            
             while((lineData = inputFile.readLine()) != null)
             {
                 if(lineData.charAt(0) == 'v' || lineData.charAt(0) == 'f')
@@ -40,10 +74,16 @@ public class ObjectRenderer
                     switch(parsedData[0])
                     {
                         case("v"):
-                            //vertexData.add(float);
+                            newGraphicsObject.vertexBuffer.put(clientWidth * Float.parseFloat(parsedData[1]));
+                            newGraphicsObject.vertexBuffer.put(clientHeight * Float.parseFloat(parsedData[2]));
+                            newGraphicsObject.vertexBuffer.put(Float.parseFloat(parsedData[3]));
                             break;
+                            
                         case("vt"):
+                            newGraphicsObject.textureBuffer.put(Float.parseFloat(parsedData[1]));
+                            newGraphicsObject.textureBuffer.put(Float.parseFloat(parsedData[2]));
                             break;
+                            
                         case("f"):
                             break;
                         
@@ -55,49 +95,65 @@ public class ObjectRenderer
         {
             throw new RuntimeException(e);
         }
+        
+        /* Binds the data to the respective buffer handle. */
+       // GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, newGraphicsObject.vertexBufferHandle);
+       // GL15.glBufferData(GL15.GL_ARRAY_BUFFER, newGraphicsObject.vertexBuffer, GL15.GL_STATIC_DRAW);
+
+        
+        
+        /* Adds the new graphics object to the array list. */
+        graphicsObjects.add(newGraphicsObject);
     }
         
-    public static void loadTriangle()
+        
+        
+    public void loadTriangle(float x1, float y1, float z1, float x2, float y2,
+                             float z2, float x3, float y3, float z3, float c1,
+                             float c2, float c3, float c4, float c5, float c6,
+                             float c7, float c8, float c9)
     {                        
+        GraphicsObject newGraphicsObject = new GraphicsObject();
+
+        
         /* Generates the color buffer. */
-        vertexBuffer = BufferUtils.createFloatBuffer(9);
-        vertexBuffer.put(new float[]
-                                   {  300.0f  ,  300.0f  ,  0.0f    , 
-                                      300.0f  ,  350.0f  ,  0.0f    , 
-                                      350.0f  ,  350.0f  ,  0.0f  
-                                   }
+        newGraphicsObject.vertexBuffer = BufferUtils.createFloatBuffer(9);
+        newGraphicsObject.vertexBuffer.put(new float[]
+                                                     {      x1  ,      y1  ,      z1  , 
+                                                            x2  ,      y2  ,      z2  , 
+                                                            x3  ,      y3  ,      z3  
+                                                     }
                        );
-        vertexBuffer.flip();
+        newGraphicsObject.vertexBuffer.flip();
         
         /* Generates the vertex buffer */       
-        colorBuffer = BufferUtils.createFloatBuffer(9);
-        colorBuffer.put(new float[]
-                                  {  0.5f    ,  1.0f    ,  0.5f    , 
-                                     1.0f    ,  0.5f    ,  0.0f    , 
-                                     0.0f    ,  0.0f    ,  1.0f  
-                                  }
-                        );
-        colorBuffer.flip();
+        newGraphicsObject.colorBuffer = BufferUtils.createFloatBuffer(9);
+        newGraphicsObject.colorBuffer.put(new float[]
+                                                    {      c1  ,      c2  ,      c3  , 
+                                                           c4  ,      c5  ,      c6  , 
+                                                           c7  ,      c8  ,      c9  
+                                                    }
+                                         );
+        newGraphicsObject.colorBuffer.flip();
     
         /* Associates the handles with buffer data. */
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferHandle);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexBuffer, GL15.GL_STATIC_DRAW);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, colorBufferHandle);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, colorBuffer, GL15.GL_STATIC_DRAW);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, newGraphicsObject.colorBuffer, GL15.GL_STATIC_DRAW);
+        
+        graphicsObjects.add(newGraphicsObject);
     }
     
-    public static void render()
+    public void renderGraphicsObjects()
     {
         /* Initial OpenGL commands in order to draw VBO . */
         GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
         GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
         
-        /*GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferHandle);
-        GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, 0L);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, colorBufferHandle);
-        GL11.glColorPointer(3, GL11.GL_FLOAT, 0, 4);
-        
-        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 4);*/
+        /* Renders the graphics objects to the screen. */
+        for(int i = 0; i < graphicsObjects.size(); i++)
+        {
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferHandle);
+        }
     }
 
 }   

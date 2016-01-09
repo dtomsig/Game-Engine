@@ -29,7 +29,7 @@ public class TextRenderer
         public int font_tex;
     };
 
-    public void load_font(String fontName, int fontSize)
+    public void loadFont(String fontName, int fontSize)
     {
         /* Leaves the function if the font is already loaded. */
         if(loadedFonts.containsKey(fontName + fontSize))
@@ -95,7 +95,7 @@ public class TextRenderer
     {   
         /* Checks to see if the font is loaded. If not, loads the font. */
         if(!loadedFonts.containsKey(fontName + fontSize))
-            load_font("Monospace", fontSize);
+            loadFont(fontName, fontSize);
             
         /* Gets the data from the stored Font. */
         STBTTPackedchar.Buffer chardata = loadedFonts.get(fontName + fontSize).chardata;

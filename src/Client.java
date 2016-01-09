@@ -20,6 +20,7 @@ public class Client
     private IntBuffer physicalWindowWidth = BufferUtils.createIntBuffer(1);
     private IntBuffer physicalWindowHeight = BufferUtils.createIntBuffer(1);
     private long windowHandle;
+    private ObjectRenderer ObjectRenderer;
     private TextRenderer TextRenderer;
     private state clientState;
     private static GLFWErrorCallback errorCallback = GLFWErrorCallback.
@@ -109,9 +110,8 @@ public class Client
         TextRenderer = new TextRenderer();
         
         /* Sets up object rendering. */
-        ObjectRenderer.loadModel("box.obj");
-        //ObjectRenderer.loadTriangle();
-        
+        ObjectRenderer = new ObjectRenderer();
+        ObjectRenderer.createObjModel("box.obj", this.resolutionWidth, this.resolutionHeight);        
         
         /* Sets up keyboard scanning. */
         GLFW.glfwSetKeyCallback(windowHandle, keyCallBack = new KeyboardHandlerer());
@@ -155,13 +155,14 @@ public class Client
         switch(clientState)
         {
             case MAIN_MENU:
-                ObjectRenderer.render();
                 renderMap();
+                break;
                 
                                     
             case IN_GAME:
         }
         
+        ObjectRenderer.renderGraphicsObjects();
         fps = 1 / (GLFW.glfwGetTime() - initialTime);
         
         if(showFps)
@@ -192,6 +193,5 @@ public class Client
     public void renderFPS()
     {
         TextRenderer.print(0, 15, 22, "Monospace", "FPS: " + fps);
-    }
-    
+    }    
 }
