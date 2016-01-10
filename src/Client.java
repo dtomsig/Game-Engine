@@ -160,6 +160,8 @@ public class Client
                 
                                     
             case IN_GAME:
+                break;
+                
         }
         
         ObjectRenderer.renderGraphicsObjects();
@@ -175,8 +177,7 @@ public class Client
     public void renderMap()
     {
         GL11.glColor3f(0.0f, 1.0f, 0.0f);
-        TextRenderer.print(0, 0, 22, "Monospace", "Hit S to show the fps to the"
-                                     + " physical window.");
+        TextRenderer.print(0, 0, 12, "Monospace", "Press the 's' key to show the FPS.");
     }
     
     public void resize()
@@ -192,6 +193,6 @@ public class Client
     
     public void renderFPS()
     {
-        TextRenderer.print(0, 15, 22, "Monospace", "FPS: " + fps);
+        TextRenderer.print(0, 12, 20, "Monospace", "FPS: " + fps);
     }    
 }

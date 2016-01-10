@@ -2,7 +2,7 @@ INSTRUCTIONS:
 
 To run the game engine:
 
-./make
+make
 
 
 Currently, this game engine only supports text rendering using immediate mode.
