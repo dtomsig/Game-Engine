@@ -164,7 +164,7 @@ public class Client
                 
         }
         
-        ObjectRenderer.renderGraphicsObjects();
+        //ObjectRenderer.renderGraphicsObjects();
         fps = 1 / (GLFW.glfwGetTime() - initialTime);
         
         if(showFps)
@@ -177,10 +177,10 @@ public class Client
     public void renderMap()
     {
         GL11.glColor3f(0.0f, 1.0f, 0.0f);
-        TextRenderer.print(0, 0, 12, "Monospace", "Press the 's' key to show the FPS.");
+        TextRenderer.print(300, 300, 30, "DejaVuSansMono", "Press 's' to display FPS.");
     }
     
-    public void resize()
+    public void resize() 
     {
         scalingFactorX = physicalWindowWidth.get(0) / resolutionWidth;
         scalingFactorY = physicalWindowHeight.get(0) / resolutionHeight;
@@ -193,6 +193,6 @@ public class Client
     
     public void renderFPS()
     {
-        TextRenderer.print(0, 12, 20, "Monospace", "FPS: " + fps);
+        TextRenderer.print(0, 0, 18, "DejaVuSansMono", "FPS: " + fps);
     }    
 }
