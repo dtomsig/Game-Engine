@@ -3,34 +3,34 @@ import java.awt.image.BufferedImage;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import javax.imageio.ImageIO;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GLUtil;
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.MemoryUtil; 
 
-import java.io.File;
-import javax.imageio.ImageIO;
 
 public class TextRenderer
 {       
     private static int BITMAP_W = 512;
     private static int BITMAP_H = 512;
-    private HashMap<String, UserFont> loadedUserFonts = new HashMap<String, 
+    private HashMap<String, UserFont> loaded_user_fonts = new HashMap<String, 
                                                                     UserFont>();
     
     public class UserFont
     {
-        public int fontTextureID;
-        public BufferedImage textureData;
-        public HashMap<Character, CharCoordinate> characterPositionData 
+        public int font_texture_id;
+        public BufferedImage texture_data;
+        public HashMap<Character, CharCoordinate> character_position_data 
                                                   = new HashMap<Character, 
                                                                 CharCoordinate>
                                                                              ();
@@ -38,133 +38,118 @@ public class TextRenderer
     
     public class CharCoordinate
     {
-        public int xPosition;
-        public int yPosition;
+        public int x_position;
+        public int y_position;
         public int width;
         public int height;
     }
     
-    public void loadFont(String fontName, int fontSize)
+    public void load_font(String font_name, int font_size)
     {   
         /* Leaves the function if the font is already loaded. */
-        if(loadedUserFonts.containsKey(fontName + fontSize))
+        if(loaded_user_fonts.containsKey(font_name + font_size))
             return;
         
-        UserFont newUserFont = new UserFont();
+        UserFont new_user_font = new UserFont();
         
         /* Verifies that the file exists, throws an exception if it does not. */
-        Font selectedAwtFont;
+        Font selected_awt_font;
         try
         {
-            selectedAwtFont = Font.createFont(Font.TRUETYPE_FONT, 
+            selected_awt_font = Font.createFont(Font.TRUETYPE_FONT, 
                                               new FileInputStream("assets/font" 
                                                                   + "s/" + 
-                                                                  fontName + 
+                                                                  font_name + 
                                                                   ".ttf"));
-            selectedAwtFont.deriveFont(fontSize);            
+            selected_awt_font = selected_awt_font.deriveFont((float)font_size);            
         }
         catch(Exception e)
         {
             throw new RuntimeException(e);
         }
-        
+            
         /* Loads the font/size character data into the map. */
-        BufferedImage textureData = new BufferedImage(BITMAP_W, BITMAP_H, 
-                                                      BufferedImage.
-                                                      TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D) textureData.getGraphics();
-        int rowHeight = 0, xPosition = 0, yPosition = 0;
+        BufferedImage texture_data = new BufferedImage(BITMAP_W, BITMAP_H, 
+                                                       BufferedImage.
+                                                       TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) texture_data.getGraphics();
+        int row_height = 0, x_position = 0, y_position = 0;
                     
         for(int i = 0; i < 256; i++)
         {
-            BufferedImage temp = getFontImage(fontSize, (char)i, 
-                                              selectedAwtFont);
-            CharCoordinate newCharCoordinate = new CharCoordinate();
+            BufferedImage temp = get_font_image(font_size, (char)i, 
+                                              selected_awt_font);
+            CharCoordinate new_char_coordinate = new CharCoordinate();
             
-            newCharCoordinate.width = temp.getWidth();
-            newCharCoordinate.height = temp.getHeight();
+            new_char_coordinate.width = temp.getWidth();
+            new_char_coordinate.height = temp.getHeight();
             
-            if(xPosition + newCharCoordinate.width >= BITMAP_W)
+            if(x_position + new_char_coordinate.width >= BITMAP_W)
             {
-                xPosition = 0;
-                yPosition += rowHeight;
-                rowHeight = 0;
+                x_position = 0;
+                y_position += row_height;
+                row_height = 0;
             }
             
-            newCharCoordinate.xPosition = xPosition;
-            newCharCoordinate.yPosition = yPosition;
+            new_char_coordinate.x_position = x_position;
+            new_char_coordinate.y_position = y_position;
                                     
-            if(newCharCoordinate.height > rowHeight)
-                rowHeight = newCharCoordinate.height;
+            if(new_char_coordinate.height > row_height)
+                row_height = new_char_coordinate.height;
             
-            g.drawImage(temp, xPosition, yPosition, null);
-            newUserFont.characterPositionData.put((char)i, newCharCoordinate);
+            g.drawImage(temp, x_position, y_position, null);
+            new_user_font.character_position_data.put((char)i, 
+                                                      new_char_coordinate);
             
-            xPosition += newCharCoordinate.width;
+            x_position += new_char_coordinate.width;
         }
         
-        /* Loads the texture into opengl and stores the handle for it. */
-        newUserFont.fontTextureID = loadTexture(textureData, 4);
+        /* Loads the texture into OpenGL and stores the handle for it. */
+        new_user_font.font_texture_id = load_texture(texture_data, 4);
         
         /* Adds the texture data to the object. */
-        newUserFont.textureData = textureData;
-        
-        
-        /* Debugging */
-        try
-        {
-        File outputfile = new File("test.jpg");
-                ImageIO.write(textureData, "jpg", outputfile);
-
-        }
-        catch(IOException e)
-        {
-        }
-
-
+        new_user_font.texture_data = texture_data;
                 
         /* Adds the  user font to the user font hashmap. */
-        loadedUserFonts.put(fontName + fontSize, newUserFont);
+        loaded_user_fonts.put(font_name + font_size, new_user_font);
     }
     
-    private BufferedImage getFontImage(int fontSize, char character, 
-                                       Font selectedAwtFont)
+    private BufferedImage get_font_image(int font_size, char character, Font s)
     {
         /* Create a  buffered image to obtain height and width information. */
-        BufferedImage tempFontImage = new BufferedImage(1, 1, 
+        BufferedImage temp_font_image = new BufferedImage(1, 1, 
                                                         BufferedImage.
                                                         TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D) tempFontImage.getGraphics();
+        Graphics2D g = (Graphics2D) temp_font_image.getGraphics();
         
-        FontMetrics fontMetrics = g.getFontMetrics();
-        g.setFont(selectedAwtFont);
+        FontMetrics font_metrics = g.getFontMetrics();
+        g.setFont(s);
         
-        int charWidth = fontMetrics.charWidth(character);
-        int charHeight = fontMetrics.getHeight();
+        int char_width = font_metrics.charWidth(character);
+        int char_height = font_metrics.getHeight();
                 
-        if(charWidth <= 0)
-            charWidth = 1;
+        if(char_width <= 0)
+            char_width = 1;
             
-        if(charHeight <= 0)
-            charHeight = fontSize;
+        if(char_height <= 0)
+            char_height = font_size;
         
         /* Create the buffered image using the correct height and width. */
-        tempFontImage = new BufferedImage(charWidth, charHeight, 
-                                          BufferedImage.TYPE_INT_ARGB);
-        g = (Graphics2D)tempFontImage.getGraphics();
+        temp_font_image = new BufferedImage(char_width, char_height, 
+                                            BufferedImage.TYPE_INT_ARGB);
+        g = (Graphics2D)temp_font_image.getGraphics();
         
-        g.setFont(selectedAwtFont);
+        g.setFont(s);
         g.setColor(Color.WHITE);
-        g.drawString(String.valueOf(character), 0, 0 + fontMetrics.getAscent());
+        g.drawString(String.valueOf(character), 0, 0 + font_metrics.getAscent());
 
         
-        return tempFontImage;
+        return temp_font_image;
     }
     
-    public static void drawBoxTC(float x0, float y0, float x1, float y1, 
-                                 float s0, float t0, float s1, float t1) 
+    public static void draw_box_tc(float x0, float y0, float x1, float y1, 
+                                   float s0, float t0, float s1, float t1) 
     {
-        
         GL11.glTexCoord2f(s0/BITMAP_W, t0/BITMAP_H);
         GL11.glVertex2f(x0, 640 - y0);
         GL11.glTexCoord2f(s1/BITMAP_W, t0/BITMAP_H);
@@ -175,7 +160,7 @@ public class TextRenderer
         GL11.glVertex2f(x0, 640 - y1);
     } 
     
-    public int loadTexture(BufferedImage image, int bytesPerPixel)
+    public int load_texture(BufferedImage image, int bytes_per_pixel)
     {
         int[] pixels = new int[image.getWidth() * image.getHeight()];
         image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, 
@@ -183,7 +168,7 @@ public class TextRenderer
 
         ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() *
                                                          image.getHeight() * 
-                                                         bytesPerPixel); 
+                                                         bytes_per_pixel); 
 
         for(int y = 0; y < image.getHeight(); y++)
         {
@@ -199,8 +184,8 @@ public class TextRenderer
 
         buffer.flip(); 
 
-        int textureID = GL11.glGenTextures(); 
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID); 
+        int texture_id = GL11.glGenTextures(); 
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture_id); 
 
         /* Sets up wrap mode. */
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 
@@ -208,61 +193,60 @@ public class TextRenderer
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
                              GL12.GL_CLAMP_TO_EDGE);
 
-        /* Setup texture scaling filtering. */
+        /* Sets up texture scaling filtering. */
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, 
                              GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, 
                              GL11.GL_NEAREST);
 
-        /* Send texel data to OpenGL. */
+        /* Sends texel data to OpenGL. */
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, 
                           image.getWidth(), image.getHeight(), 0, GL11.GL_RGBA, 
                           GL11.GL_UNSIGNED_BYTE, buffer);
 
-        return textureID;
+        return texture_id;
     }
     
-    public void print(float x, float y, int fontSize, String fontName, 
+    public void print(float x, float y, String font_name, int font_size, 
                       String text)
-    {   
-        /* Checks to see if the font is loaded. If not, loads the font. */
-        if(!loadedUserFonts.containsKey(fontName + fontSize))
-            loadFont(fontName, fontSize);
-        
-        char currentChar;
-        CharCoordinate charCoord;
-        int totalWidth = 0;
-        UserFont currentUserFont = loadedUserFonts.get(fontName + fontSize);   
-        
+    {           
+        char current_char;
+        CharCoordinate char_coord;
+        int total_width = 0;
+        UserFont current_user_font = loaded_user_fonts.get(font_name + 
+                                                           font_size);   
 
+        /* Checks to see if the font is loaded. If not, loads the font. */
+        if(!loaded_user_fonts.containsKey(font_name + font_size))
+            load_font(font_name, font_size);
+        
+              
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, currentUserFont.fontTextureID);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, current_user_font.font_texture_id);
         GL11.glBegin(GL11.GL_QUADS);
         GL11.glColor3f(0f, 0f, 0f);
         
         /* Draws each character to the screen. */
         for(int i = 0; i < text.length(); i++)
         {
-            currentChar = text.charAt(i);
+            current_char = text.charAt(i);
             
-            if(currentChar >= 0 && currentChar < 256)
+            if(current_char >= 0 && current_char < 256)
             {
                 
-                charCoord = currentUserFont.characterPositionData.
-                                            get(currentChar);
-                drawBoxTC(x, y, x + totalWidth + charCoord.width, 
-                          y + charCoord.height, charCoord.xPosition, 
-                          charCoord.yPosition, charCoord.xPosition + 
-                          charCoord.width, charCoord.yPosition + 
-                          charCoord.height);
-                totalWidth += charCoord.width;
+                char_coord = current_user_font.character_position_data.
+                                            get(current_char);
+                draw_box_tc(x, y, x + total_width + char_coord.width, 
+                          y + char_coord.height, char_coord.x_position, 
+                          char_coord.y_position, char_coord.x_position + 
+                          char_coord.width, char_coord.y_position + 
+                          char_coord.height);
+                total_width += char_coord.width;
             }
         }
         GL11.glEnd();
         GL11.glDisable(GL11.GL_BLEND);
     }
 }
-
-

@@ -14,18 +14,18 @@ import org.lwjgl.system.MemoryUtil;
 
 public class Client
 {   
-    private boolean showFps = false;
-    private double initialTime, fps, scalingFactorX, scalingFactorY;
-    private int glfwErrorState, resolutionHeight, resolutionWidth;
-    private IntBuffer physicalWindowWidth = BufferUtils.createIntBuffer(1);
-    private IntBuffer physicalWindowHeight = BufferUtils.createIntBuffer(1);
-    private long windowHandle;
+    private boolean show_fps = false;
+    private double initial_time, fps, scaling_factor_x, scaling_factor_y;
+    private int glfw_error_state, resolution_height, resolution_width;
+    private IntBuffer physical_window_height = BufferUtils.createIntBuffer(1);
+    private IntBuffer physical_window_width = BufferUtils.createIntBuffer(1);
+    private long window_handle;
     private ObjectRenderer ObjectRenderer;
     private TextRenderer TextRenderer;
-    private state clientState;
-    private static GLFWErrorCallback errorCallback = GLFWErrorCallback.
+    private state client_state;
+    private static GLFWErrorCallback error_call_back = GLFWErrorCallback.
                                                      createPrint(System.err);
-    private static KeyboardHandlerer keyCallBack;
+    private static KeyboardHandlerer key_call_back;
     
     public enum state
     {   
@@ -37,7 +37,7 @@ public class Client
             value = value;
         }
         
-        int getValue()
+        int get_value()
         {
             return value;
         }
@@ -48,50 +48,45 @@ public class Client
         
     }
     
-    public void run()
+    public void change_resolution(int new_resolution_width, 
+                                  int new_resolution_height)
     {
-        try 
-        {
-            initClient();
-            loop();
-            GLFW.glfwDestroyWindow(windowHandle);
-        }
-        finally
-        {
-            GLFW.glfwTerminate();
-            errorCallback.release();
-        }
         
     }
     
-    public void initClient()
+    public void init_client()
     {   
         /* Sets default resolution values. */
-        resolutionHeight = 480;
-        resolutionWidth = 640;
-        physicalWindowHeight.put(0, resolutionHeight);
-        physicalWindowWidth.put(0, resolutionWidth);
+        resolution_height = 480;
+        resolution_width = 640;
+        physical_window_height.put(0, resolution_height);
+        physical_window_width.put(0, resolution_width);
         
-        /* Sets up the errorSTate and sets the window handle. */
-        glfwErrorState = GLFW.glfwInit();
-        GLFW.glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
-        if(glfwErrorState == GL11.GL_FALSE)
+        /*
+        ** Sets up the error_state and sets the window handle to the current
+        ** window.
+        */
+        glfw_error_state = GLFW.glfwInit();
+        GLFW.glfwSetErrorCallback(error_call_back = 
+                                  GLFWErrorCallback.createPrint(System.err));
+        if(glfw_error_state == GL11.GL_FALSE)
             throw new IllegalStateException("Failed to initialize.");
         
-        windowHandle = GLFW.glfwCreateWindow(resolutionWidth, resolutionHeight, 
-                                             "Elements Game", MemoryUtil.NULL, 
-                                             MemoryUtil.NULL);
+        window_handle = GLFW.glfwCreateWindow(resolution_width, 
+                                              resolution_height, 
+                                              "Elements Game", MemoryUtil.NULL, 
+                                              MemoryUtil.NULL);
                                              
         /* Sets the client state to be the main menu initially. */                                     
-        clientState = state.MAIN_MENU;
+        client_state = state.MAIN_MENU;
         
         /* Prepares the client window */
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
         GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-        GLFW.glfwMakeContextCurrent(windowHandle);
+        GLFW.glfwMakeContextCurrent(window_handle);
         GLFW.glfwSwapInterval(1);
-        GLFW.glfwShowWindow(windowHandle);
+        GLFW.glfwShowWindow(window_handle);
         GL.setCapabilities(GL.createCapabilities());
         
         /* Sets the initial GL context. */
@@ -99,10 +94,11 @@ public class Client
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glViewport(0, 0, this.resolutionWidth, this.resolutionHeight);
+        GL11.glViewport(0, 0, this.resolution_width, this.resolution_height);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
-        GL11.glOrtho(0, this.resolutionWidth, 0, this.resolutionHeight, -1, 1);
+        GL11.glOrtho(0, this.resolution_width, 0, this.resolution_height, -1, 
+                     1);
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadIdentity();
         
@@ -111,10 +107,12 @@ public class Client
         
         /* Sets up object rendering. */
         ObjectRenderer = new ObjectRenderer();
-        ObjectRenderer.createObjModel("box.obj", this.resolutionWidth, this.resolutionHeight);        
+        ObjectRenderer.createObjModel("box.obj", this.resolution_width, 
+                                      this.resolution_height);        
         
         /* Sets up keyboard scanning. */
-        GLFW.glfwSetKeyCallback(windowHandle, keyCallBack = new KeyboardHandlerer());
+        GLFW.glfwSetKeyCallback(window_handle, key_call_back = 
+                                new KeyboardHandlerer());
     }
     
     public void loop()
@@ -122,7 +120,7 @@ public class Client
         GL11.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         
         // Main game loop. Calls upon resources to produce the next frame.
-        while(GLFW.glfwWindowShouldClose(windowHandle) == GLFW.GLFW_FALSE)
+        while(GLFW.glfwWindowShouldClose(window_handle) == GLFW.GLFW_FALSE)
         {
             update();
             render();
@@ -131,68 +129,80 @@ public class Client
     
     public void update()
     {
-        int tempWidth = physicalWindowWidth.get(0), 
-            tempHeight = physicalWindowHeight.get(0);
+        int temp_width = physical_window_width.get(0), 
+            temp_height = physical_window_width.get(0);
         
         /* Determines if the window is manually resized and calls to resizes. */
-        GLFW.glfwGetFramebufferSize(windowHandle, physicalWindowHeight,
-                                    physicalWindowWidth);
-        physicalWindowWidth.rewind();
-        physicalWindowHeight.rewind();
-        if(physicalWindowWidth.get(0) != tempWidth || physicalWindowHeight.get(0) != tempHeight)
+        GLFW.glfwGetFramebufferSize(window_handle, physical_window_height,
+                                    physical_window_width);
+        physical_window_width.rewind();
+        physical_window_height.rewind();
+        if(physical_window_width.get(0) != temp_width || 
+           physical_window_height.get(0) != temp_height)
             resize();
-        if(keyCallBack.isKeyDown(GLFW.GLFW_KEY_S))
-            showFps = true;
+        if(key_call_back.isKeyDown(GLFW.GLFW_KEY_S))
+            show_fps = true;
         else
-            showFps = false;
+            show_fps = false;
     }
     
     public void render()
     {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        initialTime = GLFW.glfwGetTime();  
+        initial_time = GLFW.glfwGetTime();  
                     
-        switch(clientState)
+        switch(client_state)
         {
             case MAIN_MENU:
-                renderMap();
+                render_map();
                 break;
                 
                                     
             case IN_GAME:
                 break;
-                
         }
         
         //ObjectRenderer.renderGraphicsObjects();
-        fps = 1 / (GLFW.glfwGetTime() - initialTime);
+        fps = 1 / (GLFW.glfwGetTime() - initial_time);
         
-        if(showFps)
-            renderFPS();
+        if(show_fps)
+            render_fps();
   
-        GLFW.glfwSwapBuffers(windowHandle);
+        GLFW.glfwSwapBuffers(window_handle);
         GLFW.glfwPollEvents();
     }
     
-    public void renderMap()
-    {
-        GL11.glColor3f(0.0f, 1.0f, 0.0f);
-        TextRenderer.print(300, 300, 30, "DejaVuSansMono", "Press 's' to display FPS.");
-    }
-    
-    public void resize() 
-    {
-        scalingFactorX = physicalWindowWidth.get(0) / resolutionWidth;
-        scalingFactorY = physicalWindowHeight.get(0) / resolutionHeight;
-    }
-    
-    public void changeResolution(int newResolutionWidth, int newResolutionHeight)
-    {
-        
-    }
-    
-    public void renderFPS()
+    public void render_fps()
     {
         TextRenderer.print(0, 0, 18, "DejaVuSansMono", "FPS: " + fps);
+    }
+    
+    public void render_map()
+    {
+        GL11.glColor3f(0.0f, 1.0f, 0.0f);
+        TextRenderer.print(300, 300, 12, "DejaVuSansMono", 
+                           "Press 's' to display FPS.");
+    }
+   
+    public void resize() 
+    {
+        scaling_factor_x = physical_window_width.get(0) / resolution_width;
+        scaling_factor_x = physical_window_height.get(0) / resolution_height;
     }    
+    
+    public void run()
+    {
+        try 
+        {
+            init_client();
+            loop();
+            GLFW.glfwDestroyWindow(window_handle);
+        }
+        finally
+        {
+            GLFW.glfwTerminate();
+            error_call_back.release();
+        }
+        
+    }
 }
